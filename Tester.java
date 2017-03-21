@@ -11,7 +11,7 @@ public class Tester {
 			e.printStackTrace();
 		}
 
-		Client newClient = new Client(4445, 3);
+		Client newClient = new Client(4445);
 
 		new Thread(newClient).start();
 

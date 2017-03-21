@@ -11,11 +11,12 @@ public class WorkerClient implements Runnable {
 	protected int clientID = 0;
 	private byte[] messageBytes = null;
 	private static final int metaSize = 4;
-	private static String opFileName = "/Users/Saurabh/Documents/DataTempTransfer/client/newFile0";
+	private final String opFileName;
 
-	public WorkerClient(int clientID, int port) {
+	public WorkerClient(int clientID, int port, String opFileName) {
 		this.clientID = clientID;
 		this.port = port;
+		this.opFileName = opFileName;
 	}
 
 	public void run() {
@@ -28,11 +29,11 @@ public class WorkerClient implements Runnable {
 			}
 
 			InputStream is = clientSocket.getInputStream();
-			RandomAccessFile raf = new RandomAccessFile(opFileName + ".txt", "rw");
+			RandomAccessFile raf = new RandomAccessFile(opFileName, "rw");
 
-			byte[] offArr = new byte[metaSize];
+			byte[] offArr = new byte[4 * metaSize];
 			byte[] partSize = new byte[metaSize];
-			is.read(offArr, 0, metaSize);
+			is.read(offArr, 0, 4 * metaSize);
 			is.read(partSize, 0, metaSize);
 
 			int offset = Integer.parseInt((new String(offArr)).trim());

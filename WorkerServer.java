@@ -4,19 +4,19 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 
-public class WorkerThread implements Runnable {
+public class WorkerServer implements Runnable {
 	protected Socket clientSocket = null;
-	private final int metaSize = 4;
 	private byte[] fileArr = null;
 	private byte[] packet = null;
+	private static final int metaSize = 4;
 	
 	private byte[] createPacket (int offset, int size, byte[] data) {
-		byte[] packet = new byte[2 * metaSize + data.length];
-		byte[] offArr = new byte[metaSize];
+		byte[] packet = new byte[5 * metaSize + data.length];
+		byte[] offArr = new byte[4 * metaSize];
 		byte[] partSize = new byte[metaSize];
 		
 		offArr = Integer.toString(offset).getBytes();
-		offArr = Arrays.copyOf(offArr, metaSize);
+		offArr = Arrays.copyOf(offArr, 4 * metaSize);
 		partSize = Integer.toString(size).getBytes();
 		partSize = Arrays.copyOf(partSize, metaSize);
 		
@@ -27,11 +27,10 @@ public class WorkerThread implements Runnable {
 		return packet;
 	}
 	
-	public WorkerThread(Socket clientSocket, File file, int offset, int partSize) {
+	public WorkerServer(Socket clientSocket, File file, int offset, int partSize) {
 		this.clientSocket = clientSocket;
 		fileArr = new byte[partSize];
 		
-		System.out.println("WT: File/part size: " + partSize);
 		try {
 			FileInputStream fis = new FileInputStream(file);
 			fis.getChannel().position((long) offset);
@@ -47,15 +46,9 @@ public class WorkerThread implements Runnable {
 	@Override
 	public void run() {
 		try {
-			InputStream is = clientSocket.getInputStream();
 			OutputStream os = clientSocket.getOutputStream();
-			long timeStamp = System.currentTimeMillis();
-			
 			os.write(packet);
 			os.close();
-			is.close();
-			System.out.println("Your request is processed in: " +
-					(System.currentTimeMillis() - timeStamp) + "s");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
